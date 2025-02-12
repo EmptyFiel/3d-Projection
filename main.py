@@ -1,5 +1,6 @@
-import numpy as nu, tkinter as tk,
-keyboard as kb
+import numpy as nu
+import tkinter as tk
+import keyboard as kb
 
 #window 
 window = tk.TK()
