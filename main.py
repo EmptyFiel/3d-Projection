@@ -3,10 +3,19 @@ import tkinter as tk
 from pynput.keyboard import Controller,Listener
 import time
 
+#translations
+movementX = 0
+movementY = 0
+movementZ = 0
 
-movementx = 0
-movementy = 0
-movementz = 0
+#Distance from plane
+distance = 100
+
+#rotation on axis
+rotationX = None
+rotationY = None
+rotationZ = None
+
 
 #vectors original position
 
@@ -34,13 +43,13 @@ def draw(canvas):
 def input(key):
     try:
         if key.char == 'w':
-            movementz += 1
+            movementZ += 1
         elif key.char == 's':
-            movementz -= 1
+            movementZ -= 1
         elif key.char == 'a':
-            movementx -= 1;
+            movementX -= 1
         elif key.char == 'd':
-            movementx += 1;
+            movementX += 1
         draw()
     except AttributeError:
         pass
