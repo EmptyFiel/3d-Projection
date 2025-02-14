@@ -25,6 +25,9 @@ rotationZ = None
 def translations():
     print()
     #matrix/vector 
+    
+def rotations():
+    print()
 
 
 
