@@ -74,6 +74,15 @@ def projection(k, vectorBottom,canvas):
     #                     [0,0,1,0],
     #                     [0,0,1,0]])
    # newvector = projecton @ vector1[1] with x and y divided by z  
+   # rotaion translation 
+   #x = r * sin(φ) * cos(θ) 
+   #y = r * sin(φ) * sin(θ) 
+   #z = r * cos(φ)
+   # then use the change in values for  
+    # rotationTranslation = nu.array([[1,0,0,tX],
+    #                     [0,1,0,tY],
+    #                     [0,0,1,tZ],
+    #                     [0,0,0,1]])
 
 
 
