@@ -10,9 +10,15 @@ tZ = 50
 
 fovVert = 90
 fovHor = 59
-aspectRatio = canvas.winfo_width() / canvas.winfo_height()
+aspectRatio = 16/9
 near = 0
 far = 500
+
+#square example
+vectorRight = nu.array([[[100], [100], [100], [1]], [[100],[0],[100],[1]]])
+vectorLeft = nu.array([[[-100], [100], [100], [1]], [[-100],[0],[100],[1]]])
+vectorBottom = nu.array([[[100], [200], [100], [1]], [[300],[200],[100],[1]]])
+vectorTop = nu.array([[[-100], [100], [100], [1]], [[100],[100],[100],[1]]])
 
 
 #calculate what points can be projected
@@ -29,47 +35,54 @@ def testPointsInView(canvas, near, far, fovVert, fovHor, np, k):
     #if pointY/X between pointZ cos(fov/2)
     #if pointZ between near and far
 
-def projection(k):
+def projection(k, vectorBottom,canvas):
     #y is reversed
-    vector = nu.array([[100,100,200],
-                    [300,100,200]])
-    projectedPoint = nu.zeros((2,2))
+    vector = vectorBottom
+    projectedPoint = nu.zeros((2,4,1))
+    projection = nu.array([[k,0,0,0],
+                         [0,k,0,0],
+                         [0,0,1,0],
+                         [0,0,1,0]])
+    for i in range(2):
+        projectedPoint[i] = projection @ vector[i]
+        projectedPoint[i][0][0] = projectedPoint[i][0][0] / vector[i][2][0]
+        projectedPoint[i][1][0] = projectedPoint[i][1][0] / vector[i][2][0]
+    print(projectedPoint)
+    canvas.create_line(projectedPoint[0][0][0], projectedPoint[0][1][0],
+                       projectedPoint[1][0][0],projectedPoint[1][1][0], 
+                        width = 2, fill="black")
+    
+    # for i in range(1):
+    #     projectedPoint[i][0] = (k*vector[i][0][0])/(vector[i][2][0])
+    #     projectedPoint[i][1] = (k*vector[i][1][0])/(vector[i][2][0])
+    # print(projectedPoint)
+    # canvas.create_line(projectedPoint[0][0], projectedPoint[0][1], 
+    #                    projectedPoint[1][0],projectedPoint[1][1], 
+    #                    width = 2, fill="black")
+
+    
+    # translation = nu.array([[1,0,0,tX],
+    #                     [0,1,0,tY],
+    #                     [0,0,1,tZ],
+    #                     [0,0,0,1]])
+    # vector1 = nu.array([[[100],[100],[200],[1]],[[150],[150],[250],[1]]])
+
+    # newvector = translation @ vector1[1] 
+    # projection matrix
+    # projection = nu.array([[k,0,0,0],
+    #                     [0,k,0,0],
+    #                     [0,0,1,0],
+    #                     [0,0,1,0]])
+   # newvector = projecton @ vector1[1] with x and y divided by z  
 
 
-    #new start point
-    #x
-    projectedPoint[0][0] = (k*vector[0][0])/(vector[0][2])
-    #y
-    projectedPoint[0][1] = (k*vector[0][1])/(vector[0][2])
-
-    #new end point
-    #x
-    projectedPoint[1][0] = (k*vector[1][0])/(vector[1][2])
-    #y
-    projectedPoint[1][1] = (k*vector[1][1])/(vector[1][2])
-
-
-    translation = nu.array([[1,0,0,tX],
-                        [0,1,0,tY],
-                        [0,0,1,tZ],
-                        [0,0,0,1]])
-    vector1 = nu.array([[[100],[100],[200],[1]],[[150],[150],[250],[1]]])
-
-    newvector = translation @ vector1[1] 
-    return projectedPoint
 
 
 
 
-
-
-
-def draw(canvas):
+def draw(k, vectorBottom, canvas):
     canvas.delete("all")
-    projectedPoint = projection()
-    canvas.create_line(projectedPoint[0][0], projectedPoint[0][1], 
-                       projectedPoint[1][0],projectedPoint[1][1], 
-                       width = 2, fill="black")
+    projection(k, vectorBottom, canvas)
     canvas.update()
 
 window = tk.Tk()
@@ -80,6 +93,6 @@ canvas.pack()
 canvas.winfo_width()
 canvas.winfo_height()
 
-draw(canvas)
+draw(k, vectorBottom, canvas)
 
 window.mainloop()
