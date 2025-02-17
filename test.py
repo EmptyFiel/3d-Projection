@@ -1,3 +1,4 @@
+import numpy as np
 import numpy as nu
 import tkinter as tk
 from pynput.keyboard import Controller,Listener
@@ -47,46 +48,42 @@ def projection(k, vectorBottom,canvas):
         projectedPoint[i] = projection @ vector[i]
         projectedPoint[i][0][0] = projectedPoint[i][0][0] / vector[i][2][0]
         projectedPoint[i][1][0] = projectedPoint[i][1][0] / vector[i][2][0]
-    print(projectedPoint)
     canvas.create_line(projectedPoint[0][0][0], projectedPoint[0][1][0],
                        projectedPoint[1][0][0],projectedPoint[1][1][0], 
                         width = 2, fill="black")
-    
-    # for i in range(1):
-    #     projectedPoint[i][0] = (k*vector[i][0][0])/(vector[i][2][0])
-    #     projectedPoint[i][1] = (k*vector[i][1][0])/(vector[i][2][0])
-    # print(projectedPoint)
-    # canvas.create_line(projectedPoint[0][0], projectedPoint[0][1], 
-    #                    projectedPoint[1][0],projectedPoint[1][1], 
-    #                    width = 2, fill="black")
 
-    
-    # translation = nu.array([[1,0,0,tX],
-    #                     [0,1,0,tY],
-    #                     [0,0,1,tZ],
-    #                     [0,0,0,1]])
-    # vector1 = nu.array([[[100],[100],[200],[1]],[[150],[150],[250],[1]]])
+def translation(tX,tY,tZ):
+    translationMatrix = nu.array([[1,0,0,tX],
+                                  [0,1,0,tY],
+                                  [0,0,1,tZ],
+                                  [0,0,0,1]])
+    vector1 = nu.array([[[100],[100],[200],[1]],[[150],[150],[250],[1]]])
 
-    # newvector = translation @ vector1[1] 
-    # projection matrix
-    # projection = nu.array([[k,0,0,0],
-    #                     [0,k,0,0],
-    #                     [0,0,1,0],
-    #                     [0,0,1,0]])
-   # newvector = projecton @ vector1[1] with x and y divided by z  
-   # rotaion translation 
-   #x = r * sin(φ) * cos(θ) 
-   #y = r * sin(φ) * sin(θ) 
-   #z = r * cos(φ)
-   # then use the change in values for  
-    # rotationTranslation = nu.array([[1,0,0,tX],
-    #                     [0,1,0,tY],
-    #                     [0,0,1,tZ],
-    #                     [0,0,0,1]])
+    newpoint = translationMatrix @ vector1[1]
 
+translation(tX,tY,tZ)
 
+def rotation(vector):
+    x = vector[0][0][0]
+    y = vector[0][1][0]
+    z = vector[0][2][0]
+    r = np.sqrt((x ** 2) + (y ** 2) + (z ** 2))
+    dVertAngle = 10
+    dHorAngle = 20
+    vertAngle = np.arccos(-r / z)
+    horAngle = np.atan2(y,x)
+    translatedAngleVert = vertAngle + dVertAngle
+    translatedAngleHor = horAngle + dHorAngle
+    tX = r * np.sin(translatedAngleVert) * np.cos(translatedAngleHor)
+    tY = r * np.sin(translatedAngleVert) * np.sin(translatedAngleHor)
+    tZ = -r * np.cos(translatedAngleVert)
+    angleRotationTranslation = nu.array([[1,0,0,tX],
+                                         [0,1,0,tY],
+                                         [0,0,1,tZ],
+                                         [0,0,0,1]])
+    newpoint = angleRotationTranslation @ vector[0]
 
-
+rotation(vectorTop)
 
 
 def draw(k, vectorBottom, canvas):
