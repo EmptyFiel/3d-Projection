@@ -3,6 +3,13 @@ import tkinter as tk
 from pynput.keyboard import Controller,Listener
 import time
 
+import test
+
+def function():
+    test.testprint()
+
+function()
+
 #translations
 movementX = 0
 movementY = 0
@@ -46,14 +53,14 @@ def draw(canvas):
 def input(key):
     try:
         if key.char == 'w':
-            movementZ += 1
+            print()
         elif key.char == 's':
-            movementZ -= 1
+            print()
         elif key.char == 'a':
-            movementX -= 1
+            print()
         elif key.char == 'd':
-            movementX += 1
-        draw()
+            print()
+        draw(canvas)
     except AttributeError:
         pass
 
@@ -78,7 +85,7 @@ draw(canvas)
 
 
 #listener
-listener = Listener(on_press=input())
+listener = Listener(on_press=input(key))
 listener.start()
 
 

@@ -4,6 +4,10 @@ import tkinter as tk
 from pynput.keyboard import Controller,Listener
 import time
 
+def testprint():
+    print("yes")
+
+
 k = 100
 tX = 50
 tY = 50
