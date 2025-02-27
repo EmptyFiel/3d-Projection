@@ -31,8 +31,8 @@ vectorTop = nu.array([[[-100], [100], [100], [1]], [[100],[100],[100],[1]]])
 def fov(canvas, near, far, fovVert, fovHor, np, k):
     windowWidth = canvas.winfo_width()
     windowHeight = canvas.winfo_height()
-    fovVert = 2 * (90 - (np.arctan((2 * k) / windowHeight)))
-    fovHor = 2 * (90 - (np.arctan((2 * k) / windowWidth)))
+    fovVert = 2 * (90 - (nu.arctan((2 * k) / windowHeight)))
+    fovHor = 2 * (90 - (nu.arctan((2 * k) / windowWidth)))
     return fovHor, fovVert
 
 def testPointsInView(canvas, near, far, fovVert, fovHor, np, k):
@@ -71,16 +71,16 @@ def rotation(vector):
     x = vector[0][0][0]
     y = vector[0][1][0]
     z = vector[0][2][0]
-    r = np.sqrt((x ** 2) + (y ** 2) + (z ** 2))
+    r = nu.sqrt((x ** 2) + (y ** 2) + (z ** 2))
     dVertAngle = 10
     dHorAngle = 20
-    vertAngle = np.arccos(-r / z)
-    horAngle = np.atan2(y,x)
+    vertAngle = nu.arccos(-r / z)
+    horAngle = nu.atan2(y,x)
     translatedAngleVert = vertAngle + dVertAngle
     translatedAngleHor = horAngle + dHorAngle
-    tX = r * np.sin(translatedAngleVert) * np.cos(translatedAngleHor)
-    tY = r * np.sin(translatedAngleVert) * np.sin(translatedAngleHor)
-    tZ = -r * np.cos(translatedAngleVert)
+    tX = r * nu.sin(translatedAngleVert) * nu.cos(translatedAngleHor)
+    tY = r * nu.sin(translatedAngleVert) * nu.sin(translatedAngleHor)
+    tZ = -r * nu.cos(translatedAngleVert)
     angleRotationTranslation = nu.array([[1,0,0,tX],
                                          [0,1,0,tY],
                                          [0,0,1,tZ],
