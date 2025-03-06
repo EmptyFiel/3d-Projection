@@ -2,10 +2,6 @@ import numpy as np
 import numpy as nu
 import tkinter as tk
 from pynput.keyboard import Controller,Listener
-import time
-
-def testprint():
-    print("yes")
 
 
 k = 100
@@ -85,7 +81,7 @@ def rotation(vector):
                                          [0,1,0,tY],
                                          [0,0,1,tZ],
                                          [0,0,0,1]])
-    newpoint = angleRotationTranslation @ vector[0]
+    newVector = angleRotationTranslation @ vector[0]
 
 rotation(vectorTop)
 
