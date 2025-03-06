@@ -20,9 +20,9 @@ rotationX = None
 rotationY = None
 rotationZ = None
 
-
+#Might be wrong
 #vectors original position
-vectorCube = nu.array([
+vectorCubeWrong = nu.array([
     [[[25],[25],[25],[1]],[[125],[25],[25],[1]]],
     [[[25],[125],[25],[1]],[[125],[125],[25],[1]]],
     [[[25],[25],[25],[1]],[[25],[125],[25],[1]]],
@@ -36,7 +36,21 @@ vectorCube = nu.array([
     [[[25],[125],[25],[1]],[[25],[125],[125],[1]]],
     [[[125],[125],[25],[1]],[[125],[125],[125],[1]]]
 ])
-
+#possible fix
+vectorCube = nu.array([
+    [[[-50],[-50],[25],[1]],[[50],[-50],[25],[1]]],
+    [[[-50],[50],[25],[1]],[[50],[50],[25],[1]]],
+    [[[-50],[-50],[25],[1]],[[-50],[50],[25],[1]]],
+    [[[50],[-50],[25],[1]],[[50],[50],[25],[1]]],
+    [[[-50],[-50],[125],[1]],[[50],[-50],[125],[1]]],
+    [[[-50],[50],[125],[1]],[[50],[50],[125],[1]]],
+    [[[-50],[-50],[125],[1]],[[-50],[50],[125],[1]]],
+    [[[50],[-50],[125],[1]],[[50],[50],[125],[1]]],
+    [[[-50],[-50],[25],[1]],[[-50],[-50],[125],[1]]],
+    [[[50],[-50],[25],[1]],[[50],[-50],[125],[1]]],
+    [[[-50],[50],[25],[1]],[[-50],[50],[125],[1]]],
+    [[[50],[50],[25],[1]],[[50],[50],[125],[1]]]
+])
 
 
 #matrix vector math
@@ -81,6 +95,9 @@ def projection(vector):
         projectedVector[i] = projection @ vector[i]
         projectedVector[i][0][0] = projectedVector[i][0][0] / vector[i][2][0]
         projectedVector[i][1][0] = projectedVector[i][1][0] / vector[i][2][0]
+        #works only for this graph
+        projectedVector[i][0][0] += 100
+        projectedVector[i][1][0] += 100
     # canvas.create_line(projectedVector[0][0][0], projectedVector[0][1][0],
     #                    projectedVector[1][0][0], projectedVector[1][1][0],
     #                    width=2, fill="black")
@@ -91,11 +108,8 @@ def applyVectors(vectorCube):
     for i, vector in enumerate(vectorCube):
         vectorsToDraw[i] += projection(vector)
     return vectorsToDraw
-
-
-
+    
 #draw vectors
-
 def draw(canvas, vectorCube):
     canvas.delete("all")
     vectors = applyVectors(vectorCube)
@@ -103,9 +117,7 @@ def draw(canvas, vectorCube):
         canvas.create_line(vector[0][0][0],vector[0][1][0],vector[1][0][0],vector[1][1][0], width = 2, fill="black")
     canvas.update()
 
-
 #input
-
 def input(canvas):
     while True:
         try:
