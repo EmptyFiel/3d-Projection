@@ -3,14 +3,7 @@ import tkinter as tk
 from pynput.mouse import Listener
 import keyboard as kb
 import time as t
-
-#mouse position and direction
-mousePosition = (None,None)
-
-#translations
-tX = 0
-tY = 0
-tZ = 0
+import threading
 
 #Distance from plane
 k = 100
@@ -22,67 +15,56 @@ rotationZ = None
 
 #Might be wrong
 #vectors original position
-vectorCubeWrong = nu.array([
-    [[[25],[25],[25],[1]],[[125],[25],[25],[1]]],
-    [[[25],[125],[25],[1]],[[125],[125],[25],[1]]],
-    [[[25],[25],[25],[1]],[[25],[125],[25],[1]]],
-    [[[125],[25],[25],[1]],[[125],[125],[25],[1]]],
-    [[[25],[25],[125],[1]],[[125],[25],[125],[1]]],
-    [[[25],[125],[125],[1]],[[125],[125],[125],[1]]],
-    [[[25],[25],[125],[1]],[[25],[125],[125],[1]]],
-    [[[125],[25],[125],[1]],[[125],[125],[125],[1]]],
-    [[[25],[25],[25],[1]],[[25],[25],[125],[1]]],
-    [[[125],[25],[25],[1]],[[125],[25],[125],[1]]],
-    [[[25],[125],[25],[1]],[[25],[125],[125],[1]]],
-    [[[125],[125],[25],[1]],[[125],[125],[125],[1]]]
-])
 #possible fix
 vectorCube = nu.array([
     [[[-50],[-50],[25],[1]],[[50],[-50],[25],[1]]],
     [[[-50],[50],[25],[1]],[[50],[50],[25],[1]]],
     [[[-50],[-50],[25],[1]],[[-50],[50],[25],[1]]],
     [[[50],[-50],[25],[1]],[[50],[50],[25],[1]]],
-    [[[-50],[-50],[125],[1]],[[50],[-50],[125],[1]]],
-    [[[-50],[50],[125],[1]],[[50],[50],[125],[1]]],
-    [[[-50],[-50],[125],[1]],[[-50],[50],[125],[1]]],
-    [[[50],[-50],[125],[1]],[[50],[50],[125],[1]]],
-    [[[-50],[-50],[25],[1]],[[-50],[-50],[125],[1]]],
-    [[[50],[-50],[25],[1]],[[50],[-50],[125],[1]]],
-    [[[-50],[50],[25],[1]],[[-50],[50],[125],[1]]],
-    [[[50],[50],[25],[1]],[[50],[50],[125],[1]]]
+    [[[-75],[-50],[125],[1]],[[25],[-50],[125],[1]]],
+    [[[-75],[50],[125],[1]],[[25],[50],[125],[1]]],
+    [[[-75],[-50],[125],[1]],[[-75],[50],[125],[1]]],
+    [[[25],[-50],[125],[1]],[[25],[50],[125],[1]]],
+    [[[-50],[-50],[25],[1]],[[-75],[-50],[125],[1]]],
+    [[[50],[-50],[25],[1]],[[25],[-50],[125],[1]]],
+    [[[-50],[50],[25],[1]],[[-75],[50],[125],[1]]],
+    [[[50],[50],[25],[1]],[[25],[50],[125],[1]]]
 ])
 
 
 #matrix vector math
-def translations():
+def translations(vectorCube,tX, tY, tZ):
     translationMatrix = nu.array([[1, 0, 0, tX],
                                   [0, 1, 0, tY],
                                   [0, 0, 1, tZ],
                                   [0, 0, 0, 1]])
-    vector1 = nu.array([[[100], [100], [200], [1]], [[150], [150], [250], [1]]])
-    newvector = nu.zeros((2,4,1))
-    for i in range(2):
-        newvector[i] = translationMatrix @ vector1[i]
+    for i, vector in enumerate(vectorCube):
+        vector1 = vector
+        newvector = nu.zeros((2,4,1))
+        newvector = translationMatrix @ vector1
+        vectorCube[i] = newvector
+    return vectorCube
 
-# def rotations():
-#     x = vector[0][0][0]
-#     y = vector[0][1][0]
-#     z = vector[0][2][0]
-#     r = nu.sqrt((x ** 2) + (y ** 2) + (z ** 2))
-#     dVertAngle = 10
-#     dHorAngle = 20
-#     vertAngle = nu.arccos(-r / z)
-#     horAngle = nu.atan2(y, x)
-#     translatedAngleVert = vertAngle + dVertAngle
-#     translatedAngleHor = horAngle + dHorAngle
-#     tX = r * nu.sin(translatedAngleVert) * nu.cos(translatedAngleHor)
-#     tY = r * nu.sin(translatedAngleVert) * nu.sin(translatedAngleHor)
-#     tZ = -r * nu.cos(translatedAngleVert)
-#     angleRotationTranslation = nu.array([[1, 0, 0, tX],
-#                                          [0, 1, 0, tY],
-#                                          [0, 0, 1, tZ],
-#                                          [0, 0, 0, 1]])
-#     newVector = angleRotationTranslation @ vector[0]
+def rotations(vectorCube,dVertAngle,dHorAngle):
+    for i, vector in enumerate(vectorCube):
+        x = vector[0][0][0]
+        y = vector[0][1][0]
+        z = vector[0][2][0]
+        r = nu.sqrt((x ** 2) + (y ** 2) + (z ** 2))
+        vertAngle = nu.arccos(-r / z)
+        horAngle = nu.atan2(y, x)
+        translatedAngleVert = vertAngle + dVertAngle
+        translatedAngleHor = horAngle + dHorAngle
+        tX = r * nu.sin(translatedAngleVert) * nu.cos(translatedAngleHor)
+        tY = r * nu.sin(translatedAngleVert) * nu.sin(translatedAngleHor)
+        tZ = -r * nu.cos(translatedAngleVert)
+        angleRotationTranslation = nu.array([[1, 0, 0, tX],
+                                             [0, 1, 0, tY],
+                                             [0, 0, 1, tZ],
+                                             [0, 0, 0, 1]])
+        newVector = angleRotationTranslation @ vector
+        vectorCube[i] = newVector
+    return vectorCube
 
 def projection(vector):
     # y is reversed
@@ -96,8 +78,8 @@ def projection(vector):
         projectedVector[i][0][0] = projectedVector[i][0][0] / vector[i][2][0]
         projectedVector[i][1][0] = projectedVector[i][1][0] / vector[i][2][0]
         #works only for this graph
-        projectedVector[i][0][0] += 100
-        projectedVector[i][1][0] += 100
+        projectedVector[i][0][0] += 300
+        projectedVector[i][1][0] += 300
     # canvas.create_line(projectedVector[0][0][0], projectedVector[0][1][0],
     #                    projectedVector[1][0][0], projectedVector[1][1][0],
     #                    width=2, fill="black")
@@ -115,55 +97,84 @@ def draw(canvas, vectorCube):
     vectors = applyVectors(vectorCube)
     for i, vector in enumerate(vectors):
         canvas.create_line(vector[0][0][0],vector[0][1][0],vector[1][0][0],vector[1][1][0], width = 2, fill="black")
+    canvas.pack()
     canvas.update()
 
 #input
-def input(canvas):
+def input(canvas,vectorCube):
     while True:
         try:
             if kb.is_pressed('w'):
-                print()
+                tX = 0
+                tY = 0
+                tZ = -3
+                vectorCube = translations(vectorCube,tX, tY, tZ)
             elif kb.is_pressed('a'):
-                print()
+                tX = 3
+                tY = 0
+                tZ = 0
+                vectorCube = translations(vectorCube,tX, tY, tZ)
             elif kb.is_pressed('s'):
-                print()
+                tX = 0
+                tY = 0
+                tZ = 3
+                vectorCube = translations(vectorCube,tX, tY, tZ)
             elif kb.is_pressed('d'):
-                print()
+                tX = -3
+                tY = 0
+                tZ = 0
+                vectorCube = translations(vectorCube,tX, tY, tZ)
             draw(canvas, vectorCube)
         except AttributeError:
             pass
         t.sleep(.01)
 
-def mouse(mousePosition, x, y):
+def mouse(vectorCube, canvas, x, y):
+    global mousePosition
     try:
-        dx =  x - mousePosition[0]
-        dy = y - mousePosition[1]
+        dx = x - mousePosition[0] if mousePosition[0] is not None else 0
+        dy = y - mousePosition[1] if mousePosition[1] is not None else 0
+        if dx > 0:
+            dVertAngle = 0
+            dHorAngle = 1
+            vectorCube = rotations(vectorCube, dVertAngle, dHorAngle)
+        if dx < 0:
+            dVertAngle = 0
+            dHorAngle = -1
+            vectorCube = rotations(vectorCube, dVertAngle, dHorAngle)
+        if dy < 0:
+            dVertAngle = -1
+            dHorAngle = 0
+            vectorCube = rotations(vectorCube, dVertAngle, dHorAngle)
+        if dy > 0:
+            dVertAngle = 1
+            dHorAngle = 0
+            vectorCube = rotations(vectorCube, dVertAngle, dHorAngle)
+        draw(canvas, vectorCube)
         mousePosition = (x, y)
     except AttributeError:
         pass
-
 
 #window
 window = tk.Tk()
 window.title("Welcome!")
 
-
-
 # canvas
-canvas = tk.Canvas(window, width=300, height=400)
+canvas = tk.Canvas(window, width=600, height=600)
 canvas.pack()
-
-
 
 #draw 
 draw(canvas, vectorCube)
 
-
-
 #listener
-# listenerMouse = Listener(on_move=mouse(mousePosition))
-# listenerMouse.start()
-# input(canvas)
+listenerMouse = Listener(on_move=lambda x, y: mouse(vectorCube, canvas, x, y))
+listenerMouse.start()
+input(canvas,vectorCube)
 
-#refresh window    
+
+thread = threading.Thread(target=input, args=(canvas, vectorCube))
+thread.daemon = True
+thread.start()
+
+#refresh window
 window.mainloop()
